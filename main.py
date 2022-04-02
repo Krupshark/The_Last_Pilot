@@ -7,9 +7,10 @@ from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-constants = ["ASSETS", "AUDIO", "FONTS", "IMAGES"]
-for c in constants:
-    locals().update({c: os.getenv(f"{c}_FOLDER")})
+ASSETS_FOLDER = os.getenv("ASSETS_FOLDER")
+AUDIO_FOLDER = os.getenv("AUDIO_FOLDER")
+FONTS_FOLDER = os.getenv("FONTS_FOLDER")
+IMAGES_FOLDER = os.getenv("IMAGES_FOLDER")
 
 # Initialize the pygame
 pygame.init()
