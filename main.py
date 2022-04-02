@@ -52,7 +52,7 @@ for i in range(num_of_enemies):
 # Ready - You can't see the missile on the screen
 # Fire - The missile is currently moving
 
-missile_img = pygame.image.load(f"{IMAGES_FOLDER}missile.png")
+missile_img = pygame.image.load(f"{IMAGES_FOLDER}/missile.png")
 missile_x = 50
 missile_y = 344
 missile_x_change = 3
@@ -114,9 +114,9 @@ while running:
             running = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                playerY_change = -3
+                player_y_change = -3
             if event.key == pygame.K_DOWN:
-                playerY_change = 3
+                player_y_change = 3
             if event.key == pygame.K_SPACE:
                 if missile_state == "ready":
                     missile_sound = mixer.Sound(f"{AUDIO_FOLDER}/laser.mp3")
@@ -127,7 +127,7 @@ while running:
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                playerY_change = 0
+                player_y_change = 0
 
     player_y += player_y_change
     if player_y <= 0:
