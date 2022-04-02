@@ -1,7 +1,15 @@
 import math
 import random
 import pygame
+import os
 from pygame import mixer
+from dotenv import load_dotenv
+
+load_dotenv(".env")
+
+constants = ["ASSETS", "AUDIO", "FONTS", "IMAGES"]
+for c in constants:
+    locals().update({c: os.getenv(f"{c}_FOLDER")})
 
 # Initialize the pygame
 pygame.init()
@@ -10,55 +18,55 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 
 # Background
-background = pygame.image.load("background.jpg")
+background = pygame.image.load(f"{IMAGES_FOLDER}/background.jpg")
 
 # Caption and Icon
 pygame.display.set_caption("The Last Pilot")
-icon = pygame.image.load("icon.png")
+icon = pygame.image.load(f"{IMAGES_FOLDER}/icon.png")
 pygame.display.set_icon(icon)
 
 # Player
-playerImg = pygame.image.load("player.png")
-playerX = 50
-playerY = 344
-playerY_change = 0
+player_img = pygame.image.load(f"{IMAGES_FOLDER}/player.png")
+player_x = 50
+player_y = 344
+player_y_change = 0
 
 # Enemy
-enemyImg = []
-enemyX = []
-enemyY = []
-enemyX_change = []
-enemyY_change = []
+enemy_img = []
+enemy_x = []
+enemy_y = []
+enemy_x_change = []
+enemy_y_change = []
 num_of_enemies = 10
 
 for i in range(num_of_enemies):
-    enemyImg.append(pygame.image.load("enemy.png"))
-    enemyX.append(random.randint(500, 1280))
-    enemyY.append(random.randint(50, 150))
-    enemyX_change.append(-50)
-    enemyY_change.append(2)
+    enemy_img.append(pygame.image.load(f"{IMAGES_FOLDER}/enemy.png"))
+    enemy_x.append(random.randint(500, 1280))
+    enemy_y.append(random.randint(50, 150))
+    enemy_x_change.append(-50)
+    enemy_y_change.append(2)
 
 # Missile
 
 # Ready - You can't see the missile on the screen
 # Fire - The missile is currently moving
 
-missileImg = pygame.image.load("missile.png")
-missileX = 50
-missileY = 344
-missileX_change = 3
-missileY_change = 0
+missile_img = pygame.image.load(f"{IMAGES_FOLDER}missile.png")
+missile_x = 50
+missile_y = 344
+missile_x_change = 3
+missile_y_change = 0
 missile_state = "ready"
 
 # Score
 score_value = 0
-font = pygame.font.Font("04B_19__.TTF", 32)
+font = pygame.font.Font(f"{FONTS_FOLDER}/font.TTF", 32)
 
-testX = 10
-testY = 10
+test_x = 10
+test_y = 10
 
 # Game Over
-over_font = pygame.font.Font("04B_19__.TTF", 64)
+over_font = pygame.font.Font(f"{FONTS_FOLDER}/font.TTF", 64)
 
 
 def show_score(x, y):
@@ -72,21 +80,21 @@ def game_over_text():
 
 
 def player(x, y):
-    screen.blit(playerImg, (x, y))
+    screen.blit(player_img, (x, y))
 
 
 def enemy(x, y, i):
-    screen.blit(enemyImg[i], (x, y))
+    screen.blit(enemy_img[i], (x, y))
 
 
 def fire_missile(x, y):
     global missile_state
     missile_state = "fire"
-    screen.blit(missileImg, (x + 16, y + 10))
+    screen.blit(missile_img, (x + 16, y + 10))
 
 
-def isCollision(enemyX, enemyY, missileX, missileY):
-    distance = math.sqrt(math.pow(enemyX - missileX, 2) + (math.pow(enemyY - missileY, 2)))
+def is_collision(enemy_x, enemy_y, missile_x, missile_y):
+    distance = math.sqrt(math.pow(enemy_x - missile_x, 2) + (math.pow(enemy_y - missile_y, 2)))
     if distance < 27:
         return True
     else:
@@ -96,10 +104,8 @@ def isCollision(enemyX, enemyY, missileX, missileY):
 # Game Loop
 running = True
 while running:
-
     # RGB = Red, Green, Blue
     screen.fill((0, 0, 0))
-
     # Background Image
     screen.blit(background, (0, 0))
     for event in pygame.event.get():
@@ -112,64 +118,62 @@ while running:
                 playerY_change = 3
             if event.key == pygame.K_SPACE:
                 if missile_state == "ready":
-                    missileSound = mixer.Sound("laser.mp3")
-                    missileSound.set_volume(0.3)
-                    missileSound.play()
-                    missileY = playerY
-                    fire_missile(missileX, missileY)
+                    missile_sound = mixer.Sound(f"{AUDIO_FOLDER}/laser.mp3")
+                    missile_sound.set_volume(0.3)
+                    missile_sound.play()
+                    missile_y = player_y
+                    fire_missile(missile_x, missile_y)
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 playerY_change = 0
 
-    playerY += playerY_change
-    if playerY <= 0:
-        playerY = 0
-    elif playerY >= 656:
-        playerY = 656
+    player_y += player_y_change
+    if player_y <= 0:
+        player_y = 0
+    elif player_y >= 656:
+        player_y = 656
 
     # Enemy Movement
     for i in range(num_of_enemies):
-
         # Game Over
-        if enemyX[i] <= 100:
-            playerY = 2000
+        if enemy_x[i] <= 100:
+            player_y = 2000
             for j in range(num_of_enemies):
-                enemyY[j] = 2000
+                enemy_y[j] = 2000
             game_over_text()
             break
 
-        enemyY[i] += enemyY_change[i]
-        if enemyY[i] <= 0:
-            enemyY_change[i] = 2
-            enemyX[i] += enemyX_change[i]
-        elif enemyY[i] >= 656:
-            enemyY_change[i] = -2
-            enemyX[i] += enemyX_change[i]
+        enemy_y[i] += enemy_y_change[i]
+        if enemy_y[i] <= 0:
+            enemy_y_change[i] = 2
+            enemy_x[i] += enemy_x_change[i]
+        elif enemy_y[i] >= 656:
+            enemy_y_change[i] = -2
+            enemy_x[i] += enemy_x_change[i]
 
         # Collision
-        collision = isCollision(enemyX[i], enemyY[i], missileX, missileY)
+        collision = is_collision(enemy_x[i], enemy_y[i], missile_x, missile_y)
         if collision:
-            explosionSound = mixer.Sound("explosion.wav")
-            explosionSound.play()
-            missileX = 50
+            explosion_sound = mixer.Sound(f"{AUDIO_FOLDER}/explosion.wav")
+            explosion_sound.play()
+            missile_x = 50
             missile_state = "ready"
             score_value += 1
-            enemyX[i] = random.randint(500, 1280)
-            enemyY[i] = random.randint(50, 150)
+            enemy_x[i] = random.randint(500, 1280)
+            enemy_y[i] = random.randint(50, 150)
 
-        enemy(enemyX[i], enemyY[i], i)
+        enemy(enemy_x[i], enemy_y[i], i)
 
     # Missile Movement
-    if missileX >= 1280:
-        missileX = 50
+    if missile_x >= 1280:
+        missile_x = 50
         missile_state = "ready"
 
     if missile_state == "fire":
-        fire_missile(missileX, missileY)
-        missileX += missileX_change
+        fire_missile(missile_x, missile_y)
+        missile_x += missile_x_change
 
-    player(playerX, playerY)
-    show_score(testX, testY)
+    player(player_x, player_y)
+    show_score(test_x, test_y)
     pygame.display.update()
-    
